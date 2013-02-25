@@ -65,6 +65,7 @@ public class FormPropertiesComponent extends VerticalLayout {
     if(formProperties != null) {
       for(FormProperty formProperty : formProperties) {
         FormPropertyRenderer renderer = getRenderer(formProperty);
+        renderer.setParentForm(form); // TODO BPMN_ERP added
        
         Field editorComponent = renderer.getPropertyField(formProperty);
         if(editorComponent != null) {

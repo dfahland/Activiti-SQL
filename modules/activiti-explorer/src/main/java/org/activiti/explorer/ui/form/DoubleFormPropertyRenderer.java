@@ -14,20 +14,21 @@
 package org.activiti.explorer.ui.form;
 
 import org.activiti.engine.form.FormProperty;
-import org.activiti.engine.impl.form.LongFormType;
+import org.activiti.engine.impl.form.DoubleFormType;
+import org.activiti.explorer.ui.form.AbstractFormPropertyRenderer;
 import org.activiti.explorer.Messages;
-import org.activiti.explorer.ui.validator.LongValidator;
 
+import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.TextField;
 
 /**
  * @author Frederik Heremans
  */
-public class LongFormPropertyRenderer extends AbstractFormPropertyRenderer {
+public class DoubleFormPropertyRenderer extends AbstractFormPropertyRenderer {
 
-  public LongFormPropertyRenderer() {
-    super(LongFormType.class);
+  public DoubleFormPropertyRenderer() {
+    super(DoubleFormType.class);
   }
 
   @Override
@@ -43,7 +44,7 @@ public class LongFormPropertyRenderer extends AbstractFormPropertyRenderer {
     }
 
     // Add validation of numeric value
-    textField.addValidator(new LongValidator("Value must be a long"));
+    textField.addValidator(new DoubleValidator("Value must be a double"));
     textField.setImmediate(true);
 
     return textField;

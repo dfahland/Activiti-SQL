@@ -71,4 +71,17 @@ public class FormPropertyImpl implements FormProperty {
   public boolean isWritable() {
     return isWritable;
   }
+  
+    // TODO BPMN_ERP added
+  
+    private String valueSqlQuery;
+    
+    @Override
+	public String getValueUiSqlQuery() {
+		return valueSqlQuery;
+	}
+    
+    public void setValueUiSqlQuery(String query) {
+    	valueSqlQuery = query;
+    }
 }

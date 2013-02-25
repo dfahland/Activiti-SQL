@@ -13,9 +13,12 @@
 
 package org.activiti.engine.impl.form;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.impl.sql.SQLUtil;
 
 
 /**
@@ -65,5 +68,4 @@ public class EnumFormType extends AbstractFormType {
       }
     }
   }
-
 }

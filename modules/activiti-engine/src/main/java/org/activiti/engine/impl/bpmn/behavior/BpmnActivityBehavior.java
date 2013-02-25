@@ -26,6 +26,15 @@ import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 
+import de.hpi.uni.potsdam.bpmnToSql.DataObject;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+
 /**
  * Helper class for implementing BPMN 2.0 activities, offering convenience
  * methods specific to BPMN 2.0.
@@ -83,6 +92,18 @@ public class BpmnActivityBehavior {
     if (log.isLoggable(Level.FINE)) {
       log.fine("Leaving activity '" + execution.getActivity().getId() + "'");
     }
+    
+    //TODO: BPMN_SQL start
+    if(BpmnParse.getOutputData().containsKey(execution.getActivity().getId())) { //true if activity reads a data object
+    	//ArrayList<DataObject> test = BpmnParse.getOutputData().get(execution.getActivity().getId());
+    	for (DataObject item : BpmnParse.getOutputData().get(execution.getActivity().getId())){
+    		dbConnection(item, execution.getProcessInstanceId());
+    	}
+    }
+    // BPMN_SQL end
+    
+    log.fine("Leaving activity '" + execution.getActivity().getId() + " completely");
+
 
     String defaultSequenceFlow = (String) execution.getActivity().getProperty("default");
     List<PvmTransition> transitionsToTake = new ArrayList<PvmTransition>();
@@ -143,6 +164,47 @@ public class BpmnActivityBehavior {
         
       }
     }
+  }
+  
+  //TODO: BPMN_SQL
+  public void dbConnection(DataObject dataObj, String instanceId) {
+	  Connection con = null;
+      Statement st = null;
+
+      String url = "jdbc:mysql://localhost:3306/testdb";
+      String user = "testuser";
+      String password = "test623";
+
+      try {
+          con = DriverManager.getConnection(url, user, password);
+          st = con.createStatement();
+          String update;
+          if (dataObj.getPkType().equals("new")){
+        	  update= "INSERT INTO `"+dataObj.getName()+"`(`"+dataObj.getPkey()+"`, `state`) VALUES ("+instanceId+",\""+dataObj.getState()+"\")";
+          } else if(dataObj.getPkType().equals("delete")) {
+        	  update = "DELETE FROM `"+dataObj.getName()+"` WHERE "+dataObj.getPkey()+"="+instanceId;
+          }
+          else{
+        	  update = "UPDATE `"+dataObj.getName()+"` SET `state`=\""+dataObj.getState()+"\" WHERE "+dataObj.getPkey()+"="+instanceId;
+          }
+          System.out.println(update);
+          st.executeUpdate(update);
+
+      } catch (SQLException ex) {
+          log.log(Level.SEVERE, ex.getMessage(), ex);
+
+      } finally {
+          try {
+              if (st != null) {
+                  st.close();
+              }
+              if (con != null) {
+                  con.close();
+              }
+          } catch (SQLException ex) {
+        	  log.log(Level.WARNING, ex.getMessage(), ex);
+          }
+      }
   }
 
 }

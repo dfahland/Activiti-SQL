@@ -41,6 +41,8 @@ public class FormPropertyHandler {
     FormPropertyImpl formProperty = new FormPropertyImpl(this);
     Object modelValue = null;
     
+    System.out.println("Create form property: "+execution);
+    
     if (execution!=null) {
       if (variableName != null || variableExpression == null) {
         final String varName = variableName != null ? variableName : id;
@@ -53,6 +55,7 @@ public class FormPropertyHandler {
         modelValue = variableExpression.getValue(execution);
       }
     } else {
+    	System.out.println("from default "+defaultExpression);
       // Execution is null, the form-property is used in a start-form. Default value
       // should be available (ACT-1028) even though no execution is available.
       if (defaultExpression != null) {
@@ -68,6 +71,10 @@ public class FormPropertyHandler {
     } else if (modelValue != null) {
       formProperty.setValue(modelValue.toString());
     }
+    
+    // TODO BPMN_ERP added
+	formProperty.setValueUiSqlQuery(getUiSqlQuery());
+    // BPMN_ERP end
     
     return formProperty;
   }
@@ -175,6 +182,11 @@ public class FormPropertyHandler {
   
   public void setDefaultExpression(Expression defaultExpression) {
     this.defaultExpression = defaultExpression;
+    // TODO BPMN_ERP added
+    if (defaultExpression.getExpressionText().startsWith("sql_ui:")) {
+    	setUiSqlQuery(defaultExpression.getExpressionText().substring(7));
+    }
+    // BPMN_ERP end
   }
   
   public boolean isWritable() {
@@ -183,5 +195,16 @@ public class FormPropertyHandler {
 
   public void setWritable(boolean isWritable) {
     this.isWritable = isWritable;
+  }
+  
+  // TODO: BPMN_ERP added
+  private String uiSqlQuery;
+  
+  public void setUiSqlQuery(String uiSqlQuery) {
+	  this.uiSqlQuery = uiSqlQuery;
+  }
+  
+  public String getUiSqlQuery() {
+	  return this.uiSqlQuery;
   }
 }

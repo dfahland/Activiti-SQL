@@ -29,6 +29,7 @@ import org.activiti.engine.impl.javax.el.MapELResolver;
 import org.activiti.engine.impl.javax.el.ValueExpression;
 import org.activiti.engine.impl.juel.ExpressionFactoryImpl;
 import org.activiti.engine.impl.persistence.entity.VariableScopeImpl;
+import org.activiti.engine.impl.sql.SQLExpression;
 
 
 /**
@@ -70,8 +71,14 @@ public class ExpressionManager {
  
   
   public Expression createExpression(String expression) {
-    ValueExpression valueExpression = expressionFactory.createValueExpression(parsingElContext, expression, Object.class);
-    return new JuelExpression(valueExpression, this, expression);
+	  // TODO BPMN_ERP
+	  if (expression.startsWith("sql:")) {
+		return new SQLExpression(expression.substring(4), this);  
+	  } else {
+	  // BPMN_ERP end
+	    ValueExpression valueExpression = expressionFactory.createValueExpression(parsingElContext, expression, Object.class);
+	    return new JuelExpression(valueExpression, this, expression);
+	  }
   }
 
   public void setExpressionFactory(ExpressionFactory expressionFactory) {

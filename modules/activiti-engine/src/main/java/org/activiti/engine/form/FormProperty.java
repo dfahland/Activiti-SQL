@@ -45,4 +45,7 @@ public interface FormProperty {
 
   /** Is this property a required input field */
   boolean isRequired();
+  
+  /** query to retrieve value based on SQL query executed in the UI (TODO BPMN_ERP) */
+  String getValueUiSqlQuery();
 }

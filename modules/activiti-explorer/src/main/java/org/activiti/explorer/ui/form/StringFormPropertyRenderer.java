@@ -13,10 +13,21 @@
 
 package org.activiti.explorer.ui.form;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.impl.form.StringFormType;
 import org.activiti.explorer.Messages;
+import org.joda.time.chrono.AssembledChronology.Fields;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ConversionException;
+import com.vaadin.data.Property.ReadOnlyException;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.AbstractProperty;
+import com.vaadin.event.FieldEvents.FocusEvent;
+import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.TextField;
 
@@ -28,19 +39,20 @@ public class StringFormPropertyRenderer extends AbstractFormPropertyRenderer {
   public StringFormPropertyRenderer() {
     super(StringFormType.class);
   }
-
+  
   @Override
   public Field getPropertyField(FormProperty formProperty) {
     TextField textField = new TextField(getPropertyLabel(formProperty));
     textField.setRequired(formProperty.isRequired());
     textField.setEnabled(formProperty.isWritable());
     textField.setRequiredError(getMessage(Messages.FORM_FIELD_REQUIRED, getPropertyLabel(formProperty)));
-
+    
     if (formProperty.getValue() != null) {
-      textField.setValue(formProperty.getValue());
+    	if (!makeSQLField(textField, formProperty))	    	// TODO: BPMN_ERP added check
+    		textField.setValue(formProperty.getValue());
     }
 
     return textField;
-  }
+  };
 
 }

@@ -263,6 +263,12 @@ public interface RuntimeService {
   
   /** Sends an external trigger to an activity instance that is waiting inside the given execution.
    * @param executionId id of execution to signal, cannot be null.
+   * @throws ActivitiException when no execution is found for the given executionId. 
+   */
+  void signalResumeForData(String executionId);
+  
+  /** Sends an external trigger to an activity instance that is waiting inside the given execution.
+   * @param executionId id of execution to signal, cannot be null.
    * @param processVariables a map of process variables
    * @throws ActivitiException when no execution is found for the given executionId. 
    */

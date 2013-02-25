@@ -16,12 +16,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.form.FormProperty;
+import org.activiti.engine.form.StartFormData;
 import org.activiti.engine.impl.cmd.StartProcessInstanceCmd;
 import org.activiti.engine.impl.context.Context;
+import org.activiti.engine.impl.form.DefaultFormHandler;
+import org.activiti.engine.impl.form.FormPropertyHandler;
 import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.persistence.deploy.DeploymentCache;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.persistence.entity.JobEntity;
+import org.activiti.engine.impl.sql.SQLExpression;
 import org.activiti.engine.repository.ProcessDefinition;
 
 
@@ -43,6 +49,32 @@ public class TimerStartEventJobHandler implements JobHandler {
     ProcessDefinition processDefinition = deploymentCache.findDeployedLatestProcessDefinitionByKey(configuration);
     try {
       if(!processDefinition.isSuspended()) {
+    	  
+    	// TODO: BPMN_ERP added
+
+   	  System.out.println(">>>>>>>>>>>>>> TIMER checking for new process instance");
+    	  
+    	StartFormData data = ProcessEngines.getDefaultProcessEngine().getFormService().getStartFormData(processDefinition.getId());
+    	for (FormProperty prop : data.getFormProperties()) {
+    		if (prop.getId().equals("sql_trigger")) {
+				String result = prop.getValue();
+				if (result == null) {
+					log.fine("no result on trigger");
+					return; // do not start anything
+				} else {
+					if (result.equals("0")) {
+						log.fine("trigger condition not satisfied");
+						return; // query returned 0 or false
+					} else {
+						log.fine("trigger condition satisfied");						
+					}
+				}
+    		}
+    	}
+    	System.out.println(">>>>>>>>>>>>>> TIMER starting new process instance");
+    	
+    	// BPMN_ERP end
+    	  
         new StartProcessInstanceCmd(configuration, null, null, null).execute(commandContext);
       } else {
         log.log(Level.FINE, "ignoring timer of suspended process definition " + processDefinition.getName());

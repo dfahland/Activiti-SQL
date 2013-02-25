@@ -338,6 +338,9 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
    * if there is a parent, this method removes the bidirectional relation 
    * between parent and this execution. */
   public void end() {
+	  
+	  System.out.println("Ending execution "+activityId);
+	  
     isActive = false;
     isEnded = true;
     performOperation(AtomicOperation.ACTIVITY_END);
@@ -356,6 +359,12 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     } catch (Exception e) {
       throw new PvmException("couldn't process signal '"+signalName+"' on activity '"+activity.getId()+"': "+e.getMessage(), e);
     }
+  }
+  
+  // TODO BPMN_SQL added
+  public void resumeExecution() {
+	  ensureActivityInitialized();
+	  performOperation(AtomicOperation.ACTIVITY_EXECUTE);
   }
   
   public void take(PvmTransition transition) {

@@ -16,7 +16,9 @@ package org.activiti.explorer.ui.form;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.FormType;
 
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.Form;
 
 
 /**
@@ -49,4 +51,31 @@ public interface FormPropertyRenderer {
    * {@link FormPropertyRenderer#getPropertyField(FormProperty)}.
    */
   String getFieldValue(FormProperty formProperty, Field field);
+  
+  /**
+   * TODO BPMN_ERP added
+   * Add parent form to this form renderer to be accessed for dynamic updates.
+   * @param form
+   */
+  void setParentForm(Form form);
+
+  /**
+   * TODO BPMN_ERP added
+   * Get field in the parent form 
+   * @param propertyId name of the field
+   * @return
+   */
+  public Field getFieldInParentForm(Object propertyId);
+  
+  	/**
+	 * TODO BPMN_ERP added 
+	 * 
+	 * Make the given abstract field's value depend on the
+	 * result of an SQL query that is specified in the formProperty
+	 * 
+	 * @param field
+	 * @param formProperty
+	 * @return true iff the formProperty did contain an SQL query and the field was changed accordingly
+	 */
+  public boolean makeSQLField(AbstractField field, FormProperty formProperty);
 }

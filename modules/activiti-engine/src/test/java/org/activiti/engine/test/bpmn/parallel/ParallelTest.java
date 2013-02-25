@@ -14,6 +14,7 @@
 package org.activiti.engine.test.bpmn.parallel;
 
 import org.activiti.engine.impl.test.PluggableActivitiTestCase;
+import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.test.Deployment;
 
 
@@ -26,4 +27,18 @@ public class ParallelTest extends PluggableActivitiTestCase {
   public void testParallel() {
     runtimeService.startProcessInstanceByKey("myProc");
   }
+  
+//  @Deployment
+//  public void testParallel_data() {
+//    ProcessInstance inst = runtimeService.startProcessInstanceByKey("myProc_data");
+//    String instanceID = inst.getId();
+//    while (inst != null && !inst.isEnded()) {
+//    	inst = runtimeService.createProcessInstanceQuery().processInstanceId(instanceID).singleResult();
+//    	try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//    }
+//  }
 }

@@ -13,12 +13,14 @@
 
 package org.activiti.explorer.ui.process.listener;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.activiti.engine.FormService;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.StartFormData;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -64,6 +66,16 @@ public class StartProcessInstanceClickListener implements ClickListener {
     
     StartFormData startFormData = formService.getStartFormData(processDefinition.getId());
     if(startFormData != null && ((startFormData.getFormProperties() != null && startFormData.getFormProperties().size() > 0) || startFormData.getFormKey() != null)) {
+    	// TODO BPMN_ERP added
+    	List<FormProperty> toRemove = new LinkedList<FormProperty>();
+    	for (FormProperty prop : startFormData.getFormProperties()) {
+        	if (prop.getId().equals("sql_trigger")) {
+        		toRemove.add(prop);
+        	}
+    	}
+    	startFormData.getFormProperties().removeAll(toRemove);
+    	// BPMN_ERP end
+    	
       parentPage.showStartForm(processDefinition, startFormData);
     } else {
       // Just start the process-instance since it has no form.

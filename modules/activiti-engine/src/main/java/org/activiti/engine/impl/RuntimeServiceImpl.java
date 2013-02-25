@@ -27,6 +27,7 @@ import org.activiti.engine.impl.cmd.FindActiveActivityIdsCmd;
 import org.activiti.engine.impl.cmd.GetExecutionVariableCmd;
 import org.activiti.engine.impl.cmd.GetExecutionVariablesCmd;
 import org.activiti.engine.impl.cmd.GetStartFormCmd;
+import org.activiti.engine.impl.cmd.LeaveWaitStateCmd;
 import org.activiti.engine.impl.cmd.MessageEventReceivedCmd;
 import org.activiti.engine.impl.cmd.RemoveExecutionVariablesCmd;
 import org.activiti.engine.impl.cmd.SetExecutionVariablesCmd;
@@ -168,6 +169,10 @@ public class RuntimeServiceImpl extends ServiceImpl implements RuntimeService {
 
   public void signal(String executionId) {
     commandExecutor.execute(new SignalCmd(executionId, null, null, null));
+  }
+  
+  public void signalResumeForData(String executionId) {
+    commandExecutor.execute(new LeaveWaitStateCmd(executionId));
   }
   
   public void signal(String executionId, Map<String, Object> processVariables) {

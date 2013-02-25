@@ -14,18 +14,27 @@
 package org.activiti.engine.impl.pvm.runtime;
 
 import java.util.List;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.activiti.engine.impl.pvm.delegate.ActivityBehavior;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.activiti.engine.impl.pvm.delegate.CompositeActivityBehavior;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
+import org.apache.commons.logging.impl.Log4JLogger;
 
 
 /**
  * @author Tom Baeyens
  */
 public class AtomicOperationActivityEnd extends AbstractEventAtomicOperation {
+	
+  public static Logger log = Logger.getLogger(AtomicOperationActivityEnd.class.getName());
+
 
   @Override
   protected ScopeImpl getScope(InterpretableExecution execution) {
@@ -42,7 +51,9 @@ public class AtomicOperationActivityEnd extends AbstractEventAtomicOperation {
   protected void eventNotificationsCompleted(InterpretableExecution execution) {
     ActivityImpl activity = (ActivityImpl) execution.getActivity();
     ActivityImpl parentActivity = activity.getParentActivity();
-
+    
+	log.log(Level.INFO, ">>>>>>>>>>>>>>>>> END ACTIVITIY "+activity);
+	
     // if the execution is a single path of execution inside the process definition scope
     if ( (parentActivity!=null)
          &&(!parentActivity.isScope())

@@ -145,6 +145,7 @@ public class TimerDeclarationImpl implements Serializable {
       if (!isInterruptingTimer) {
         String prepared = prepareRepeat(dueDateString);
         timer.setRepeat(prepared);
+        System.out.println("setting repeating timer: "+timer+" "+prepared);
       }
     }
     

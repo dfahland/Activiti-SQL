@@ -119,6 +119,8 @@ import org.activiti.engine.impl.util.xml.Parse;
 import org.activiti.engine.impl.variable.VariableDeclaration;
 import org.activiti.engine.repository.ProcessDefinition;
 
+import de.hpi.uni.potsdam.bpmnToSql.DataObject;
+
 /**
  * Specific parsing of one BPMN 2.0 XML file, created by the {@link BpmnParser}.
  * 
@@ -191,6 +193,20 @@ public class BpmnParse extends Parse {
   protected Map<String, BpmnInterface> bpmnInterfaces = new HashMap<String, BpmnInterface>();
   protected Map<String, Operation> operations = new HashMap<String, Operation>();
   protected Map<String, SignalDefinition> signals = new HashMap<String, SignalDefinition>();
+  
+  //TODO: BPMN_SQL
+  protected static Map<String, ArrayList<DataObject>> inputData = new HashMap<String, ArrayList<DataObject>>();
+  protected static Map<String, ArrayList<DataObject>> outputData = new HashMap<String, ArrayList<DataObject>>();
+  private Map<String, DataObject> dataObjectMap = new HashMap<String, DataObject>();
+  
+  public static Map<String, ArrayList<DataObject>> getInputData() {
+	return inputData;
+  }
+
+  public static Map<String, ArrayList<DataObject>> getOutputData() {
+	return outputData;
+  }
+
 
   // Members
   protected ExpressionManager expressionManager;
@@ -676,7 +692,9 @@ public class BpmnParse extends Parse {
     
     HashMap<String, Element> postponedElements  = new HashMap<String, Element>();
     
+    parseScopeInformation(scopeElement, parentScope);   //TODO: BPMN_SQL
     parseStartEvents(scopeElement, parentScope);
+    parseDataObjects(scopeElement, parentScope);		//TODO: BPMN_SQL	
     parseActivities(scopeElement, parentScope, postponedElements);
     parsePostponedElements(scopeElement, parentScope, postponedElements);
     parseEndEvents(scopeElement, parentScope);
@@ -695,6 +713,43 @@ public class BpmnParse extends Parse {
     parentScope.setIoSpecification(ioSpecification);
     
   }
+  
+  // TODO BPMN_SQL
+  private void parseScopeInformation(Element parentElement, ScopeImpl scopeElement) {
+	
+	
+  }
+
+  // TODO BPMN_SQL
+  private void parseDataObjects(Element parentElement, ScopeImpl scopeElement) {
+	  for (Element activityElement : parentElement.elements()) {
+		    if (activityElement.getTagName().equals("dataObject")) {
+		    	DataObject dataObj = new DataObject();
+		    	dataObj.setName(activityElement.attribute("name"));
+		    	
+		    	if(activityElement.attribute("isCollection").equalsIgnoreCase(("true"))) {
+		    		dataObj.setIsCollection(true);
+		    	}
+		    	
+		    	Element extension = activityElement.element("extensionElements");
+		    	dataObj.setPkey(extension.element("pk").getText());
+		    	dataObj.setPkType(extension.element("pk").attribute("type"));
+		    	
+		    	ArrayList<String> fkList = new ArrayList<String>(); 
+		    	for (Element fk : extension.elements()) {
+					if(fk.getTagName().equals("fk")) {
+						fkList.add(fk.getText());
+					}
+				}
+		    	if(!fkList.isEmpty()) {
+		    		dataObj.setFkeys(fkList);
+		    	}
+		    	
+		    	dataObj.setState(activityElement.element("dataState").attribute("name"));
+		    	dataObjectMap.put(activityElement.attribute("id"), dataObj);
+		    }
+	  }
+  }  
 
   protected void parsePostponedElements(Element scopeElement, ScopeImpl parentScope, HashMap<String, Element> postponedElements) {
     for (Element postponedElement : postponedElements.values()) {
@@ -1111,7 +1166,36 @@ public class BpmnParse extends Parse {
   public void parseActivities(Element parentElement, ScopeImpl scopeElement, HashMap<String, Element> postponedElements) {
     for (Element activityElement : parentElement.elements()) {
       parseActivity(activityElement, parentElement, scopeElement, postponedElements);
+      parseDataInput(activityElement);      //TODO BPMN_SQL
+      parseDataOutput(activityElement);		//TODO BPMN_SQL
     }
+  }
+  
+  // TODO BPMN_SQL
+  protected void parseDataInput(Element activityElement){ 
+	  ArrayList<DataObject> doList = new ArrayList<DataObject>();
+	  for (Element ae : activityElement.elements()) {
+		if (ae.getTagName().equals("dataInputAssociation")) {
+			  doList.add(dataObjectMap.get(ae.element("sourceRef").getText()));
+		  }
+	  }
+	  if(!doList.isEmpty()) {
+		  inputData.put(activityElement.attribute("id"),doList);
+		  
+	  }
+  }
+
+  // TODO BPMN_SQL
+  protected void parseDataOutput(Element activityElement){
+	  ArrayList<DataObject> doList = new ArrayList<DataObject>();
+	  for (Element ae : activityElement.elements()) {
+		if (ae.getTagName().equals("dataOutputAssociation")) {
+			  doList.add(dataObjectMap.get(ae.element("targetRef").getText()));
+		  }
+	  }
+	  if(!doList.isEmpty()) {
+		  outputData.put(activityElement.attribute("id"),doList);
+	  }
   }
 
   protected void parseActivity(Element activityElement, Element parentElement, ScopeImpl scopeElement, HashMap<String, Element> postponedElements) {
@@ -2730,6 +2814,9 @@ public class BpmnParse extends Parse {
    *          The current scope on which the subprocess is defined.
    */
   public ActivityImpl parseSubProcess(Element subProcessElement, ScopeImpl scope) {
+	  
+	parseScopeInformation(subProcessElement, scope); 		//TODO BPMN_SQL
+	  
     ActivityImpl activity = createActivityOnScope(subProcessElement, scope);
     
     activity.setAsync(isAsync(subProcessElement));

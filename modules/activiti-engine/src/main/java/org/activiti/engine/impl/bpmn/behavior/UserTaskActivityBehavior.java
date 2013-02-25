@@ -25,6 +25,7 @@ import org.activiti.engine.impl.el.ExpressionManager;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.activiti.engine.impl.task.TaskDefinition;
+import org.activiti.engine.task.IdentityLink;
 
 /**
  * activity implementation for the user task.
@@ -42,6 +43,8 @@ public class UserTaskActivityBehavior extends TaskActivityBehavior {
   }
 
   public void execute(ActivityExecution execution) throws Exception {
+System.out.println("reaching user task "+taskDefinition);	  
+	  
     TaskEntity task = TaskEntity.createAndInsert(execution);
     task.setExecution(execution);
     task.setTaskDefinition(taskDefinition);
@@ -89,6 +92,10 @@ public class UserTaskActivityBehavior extends TaskActivityBehavior {
     }
     
     handleAssignments(task, execution);
+    
+    for (IdentityLink l : task.getCandidates()) {
+    	System.out.println(l.getTaskId()+" "+l.getType()+" "+l.getUserId()+" "+l.getGroupId());
+    }
    
     // All properties set, now firing 'create' event
     task.fireEvent(TaskListener.EVENTNAME_CREATE);

@@ -13,11 +13,15 @@
 
 package org.activiti.explorer.ui.form;
 
+import java.util.Map;
+
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.FormType;
 import org.activiti.explorer.ExplorerApp;
 
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.Form;
 
 
 /**
@@ -56,6 +60,45 @@ public abstract class AbstractFormPropertyRenderer implements FormPropertyRender
   
   protected String getMessage(String key, Object ... params) {
     return ExplorerApp.get().getI18nManager().getMessage(key, params);
+  }
+
+  
+  // TODO BPMN_ERP added (everything below)
+  private Form parentForm;
+  
+  @Override
+  public void setParentForm(Form form) {
+	  parentForm = form;
+  }
+  
+  public Field getFieldInParentForm(Object propertyId) {
+	  if (parentForm != null)
+		  return parentForm.getField(propertyId);
+	  else
+		  return null;
+  }
+  
+  public boolean makeSQLField(AbstractField field, FormProperty formProperty) {
+  	String value = formProperty.getValue();
+  	if (formProperty.getValueUiSqlQuery() != null) {
+  		String query = formProperty.getValueUiSqlQuery();
+  		
+  		if (!formProperty.isWritable()) {
+  			field.setEnabled(true);
+  			field.setReadOnly(true);
+  		}
+  		
+  		Map<String, Field> fields = SQLPropertyChangeListener.getFieldMapping(query, this); 
+  		SQLFieldPropertyChangeListener sqlChangeListener = new SQLFieldPropertyChangeListener(field, query, fields); 
+  		for (Field f : fields.values()) {
+  			f.addListener(sqlChangeListener);
+  		}
+  		sqlChangeListener.updateTargetField();
+  		return true;
+  	} else {
+  		field.setValue(value);
+  		return false;
+  	}
   }
   
 }

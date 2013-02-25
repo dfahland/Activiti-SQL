@@ -47,6 +47,14 @@ public class ProcessDefinitionPropertiesResource extends SecuredResource {
       List<FormProperty> properties = startFormData.getFormProperties();
       
       for (FormProperty property : properties) {
+    	  
+    	// TODO BPMN_ERP added
+    	if (property.getId().equals("sql_trigger")) {
+    		System.out.println("skipping sql_trigger in form properties");
+    		continue;
+    	}
+    	// BPMN_ERP end
+    	  
         ObjectNode propertyJSON = new ObjectMapper().createObjectNode();
         propertyJSON.put("id", property.getId());
         propertyJSON.put("name", property.getName());

@@ -13,15 +13,30 @@
 
 package org.activiti.explorer.ui.form;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.impl.form.EnumFormType;
+import org.activiti.engine.impl.sql.SQLUtil;
 import org.activiti.explorer.Messages;
 
+import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.Select;
+
+import de.hpi.uni.potsdam.bpmnToSql.DataObject;
 
 /**
  * @author Frederik Heremans
@@ -35,21 +50,50 @@ public class EnumFormPropertyRenderer extends AbstractFormPropertyRenderer {
   @SuppressWarnings("unchecked")
   @Override
   public Field getPropertyField(FormProperty formProperty) {
-    ComboBox comboBox = new ComboBox(getPropertyLabel(formProperty));
-    comboBox.setRequired(formProperty.isRequired());
-    comboBox.setRequiredError(getMessage(Messages.FORM_FIELD_REQUIRED, getPropertyLabel(formProperty)));
-    comboBox.setEnabled(formProperty.isWritable());
+	  AbstractSelect comboBox;
+	  if (formProperty.isWritable()) {
+		  comboBox = new ComboBox(getPropertyLabel(formProperty));
+	  } else {
+		  comboBox = new ListSelect(getPropertyLabel(formProperty));
+		  comboBox.setReadOnly(true);
+		  comboBox.setNullSelectionAllowed(false);
+	  }
+	  
+	  //ComboBox comboBox = new ComboBox(getPropertyLabel(formProperty)); // BPMN_EPR removed
+	  comboBox.setRequired(formProperty.isRequired());
+	  comboBox.setRequiredError(getMessage(Messages.FORM_FIELD_REQUIRED, getPropertyLabel(formProperty)));
+	  //comboBox.setEnabled(formProperty.isWritable()); //BPMN_ERP removed
 
-    Map<String, String> values = (Map<String, String>) formProperty.getType().getInformation("values");
-    if (values != null) {
-      for (Entry<String, String> enumEntry : values.entrySet()) {
-        // Add value and label (if any)
-        comboBox.addItem(enumEntry.getKey());
-        if (enumEntry.getValue() != null) {
-          comboBox.setItemCaption(enumEntry.getKey(), enumEntry.getValue());
-        }
-      }
-    }
-    return comboBox;
+	  comboBox.setImmediate(true);
+	  
+	  Map<String, String> values = (Map<String, String>) formProperty.getType().getInformation("values");
+	  
+	  System.out.println(values+" "+formProperty.getValueUiSqlQuery());
+			  
+	  if (values != null) {
+		  // TODO BPMN_ERP
+		  if (formProperty.getValueUiSqlQuery() != null) {
+			  String query = formProperty.getValueUiSqlQuery();
+			  
+			  Map<String, Field> fields = SQLPropertyChangeListener.getFieldMapping(query, this);
+			  SQLListPropertyChangeListener listener = new SQLListPropertyChangeListener(comboBox, query, fields, values);
+			  for (Field f : fields.values()) {
+				  f.addListener(listener);
+			  }
+			  listener.updateTargetField();
+		  } else {
+		  // BPMN_ERP end
+			  for (Entry<String, String> enumEntry : values.entrySet()) {
+				  // Add value and label (if any)
+				  comboBox.addItem(enumEntry.getKey());
+				  if (enumEntry.getValue() != null) {
+					  comboBox.setItemCaption(enumEntry.getKey(), enumEntry.getValue());
+				  }
+			  }
+		  }
+	  }
+	  return comboBox;
   }
+  
+
 }
