@@ -16,6 +16,7 @@ package org.activiti.engine.impl.bpmn.parser;
 import java.io.Serializable;
 
 import org.activiti.engine.ActivitiException;
+import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.impl.persistence.entity.EventSubscriptionEntity;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.persistence.entity.MessageEventSubscriptionEntity;
@@ -33,6 +34,7 @@ public class EventSubscriptionDeclaration implements Serializable {
 
   protected final String eventName;
   protected final String eventType;
+  protected final Expression expression; // BPMN_ERP added
   
   protected boolean async;
   protected String activityId;
@@ -40,7 +42,15 @@ public class EventSubscriptionDeclaration implements Serializable {
 
   public EventSubscriptionDeclaration(String eventName, String eventType) {
     this.eventName = eventName;
-    this.eventType = eventType;   
+    this.eventType = eventType;
+    this.expression = null; // TODO BPMN_ERP added
+  }
+  
+  // TODO BPMN_ERP added
+  public EventSubscriptionDeclaration(String eventName, Expression expression, String eventType) {
+	    this.eventName = eventName;
+	    this.eventType = eventType;
+	    this.expression = expression;
   }
     
   public String getEventName() {
@@ -61,6 +71,11 @@ public class EventSubscriptionDeclaration implements Serializable {
     
   public String getActivityId() {
     return activityId;
+  }
+ 
+  // TODO BPMN_ERP added
+  public Expression getExpression() {
+	return expression;
   }
   
   public boolean isStartEvent() {

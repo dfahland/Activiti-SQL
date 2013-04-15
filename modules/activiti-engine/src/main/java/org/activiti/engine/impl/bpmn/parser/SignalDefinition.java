@@ -15,6 +15,8 @@ package org.activiti.engine.impl.bpmn.parser;
 
 import java.io.Serializable;
 
+import org.activiti.engine.delegate.Expression;
+
 /**
  * Represents a bpmn signal definition
  * 
@@ -26,7 +28,7 @@ public class SignalDefinition implements Serializable {
     
   private String id;
   private String name;
-
+  private Expression sqlExpression; // TODO BPMN_ERP
     
   public String getId() {
     return id;
@@ -43,5 +45,15 @@ public class SignalDefinition implements Serializable {
   public void setName(String name) {
     this.name = name;
   }
+
+	// TODO BPMN_ERP added
+	public Expression getSqlExpression() {
+		return sqlExpression;
+	}
+
+	// TODO BPMN_ERP added
+	public void setSqlExpression(Expression expression) {
+		this.sqlExpression = expression;
+	}
   
 }

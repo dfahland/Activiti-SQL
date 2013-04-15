@@ -59,7 +59,7 @@ public class SQLExpression implements Expression {
 	}
 
 	
-	private String instantiateSQLQuery(VariableScope variableScope) {
+	public String instantiateSQLQuery(VariableScope variableScope) {
 		String iQuery = query;
 		for (String var : subExpressions.keySet()) {
 			iQuery = iQuery.replace(var, subExpressions.get(var).getValue(variableScope).toString());

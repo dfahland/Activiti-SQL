@@ -112,6 +112,7 @@ import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.impl.pvm.process.ScopeImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
 import org.activiti.engine.impl.scripting.ScriptingEngines;
+import org.activiti.engine.impl.sql.SQLExpression;
 import org.activiti.engine.impl.task.TaskDefinition;
 import org.activiti.engine.impl.util.ReflectUtil;
 import org.activiti.engine.impl.util.xml.Element;
@@ -458,6 +459,12 @@ public class BpmnParse extends Parse {
         SignalDefinition signal = new SignalDefinition();
         signal.setId(this.targetNamespace + ":" + id);
         signal.setName(signalName);
+        
+        // TODO BPMN_ERP start
+        if (signalName.startsWith("sql:")) {
+        	signal.setSqlExpression(expressionManager.createExpression(signalName));
+        }
+        
         this.signals.put(signal.getId(), signal);
       }     
     }
@@ -2670,7 +2677,7 @@ public class BpmnParse extends Parse {
       if (signalDefinition == null) {
         addError("Could not find signal with id '" + signalRef + "'", signalEventDefinitionElement);
       }
-      EventSubscriptionDeclaration signalEventDefinition = new EventSubscriptionDeclaration(signalDefinition.getName(), "signal");      
+      EventSubscriptionDeclaration signalEventDefinition = new EventSubscriptionDeclaration(signalDefinition.getName(), signalDefinition.getSqlExpression(), "signal");      
       boolean asynch = "true".equals(signalEventDefinitionElement.attributeNS(BpmnParser.ACTIVITI_BPMN_EXTENSIONS_NS, "async", "false"));
       signalEventDefinition.setAsync(asynch);
       
